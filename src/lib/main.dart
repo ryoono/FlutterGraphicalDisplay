@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:async';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -64,8 +67,40 @@ class _MyHomePageState extends State<MyHomePage> {
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
-      _counter++;
+      // _counter++;
+      // print(_counter);
+      read_csv();
+
+      // final result = await FilePicker.platform.pickFiles(
+      //   type: FileType.custom,
+      //   allowedExtensions: ['csv'],
+      // );
+      
+      // var file = new File('../../../');
+      // Future<String> contents = file.readAsString();
+      // print(contents);
+      // contents.then((content) => print(content));
     });
+  }
+
+  Future<void> read_csv() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+    print(result?.files.first.path);
+
+    String hoge = result?.files.first.path ?? "";
+    if( hoge != "" ){
+      var file = File(hoge);
+      var content = await file.readAsString();
+      print(content);
+    }
+    else{
+      print("file not found");
+    }
+    _counter++;
+    print(_counter);
   }
 
   @override
