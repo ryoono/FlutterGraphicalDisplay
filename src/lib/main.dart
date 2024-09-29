@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:file_picker/file_picker.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -60,7 +61,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  void _incrementCounter() {
+  void _incrementCounter(){
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -70,6 +71,8 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter++;
       // print(_counter);
       read_csv();
+      _counter++;
+      print(_counter);
 
       // final result = await FilePicker.platform.pickFiles(
       //   type: FileType.custom,
@@ -83,14 +86,24 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // awaitを使う時の設定
+  // https://zenn.dev/flutteruniv_dev/articles/5a1fb9cdca854e
   Future<void> read_csv() async {
+    
+    // ファイル選択
+    // https://qiita.com/krohigewagma/items/ab2beea3b00cb8c3f62b
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['csv'],
     );
     print(result?.files.first.path);
 
+    // nullチェック方法
+    // https://github.com/flutter/flutter/issues/92792
     String hoge = result?.files.first.path ?? "";
+
+    // ファイル読み込み
+    // https://jp-seemore.com/app/17142/
     if( hoge != "" ){
       var file = File(hoge);
       var content = await file.readAsString();
@@ -99,8 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
     else{
       print("file not found");
     }
-    _counter++;
-    print(_counter);
   }
 
   @override
@@ -111,50 +122,100 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('折れ線グラフ'),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SizedBox(
+          width: screenWidth * 0.95,
+          height: screenWidth * 0.95 * 0.65,
+          child: LineChart(
+            LineChartData(
+              lineBarsData: [
+                LineChartBarData(
+                  spots: const [
+                    FlSpot(1, 0),
+                    FlSpot(2, 400),
+                    FlSpot(3, 650),
+                    FlSpot(4, 800),
+                    FlSpot(5, 870),
+                    FlSpot(6, 920),
+                    FlSpot(7, 960),
+                    FlSpot(8, 980),
+                    FlSpot(9, 990),
+                    FlSpot(10, 995),
+                  ],
+                  isCurved: true,
+                  color: Colors.blue,
+                ),
+              ],
+              titlesData: const FlTitlesData(
+                topTitles: AxisTitles(
+                  axisNameWidget: Text(
+                    "ステップ速度",
+                  ),
+                  axisNameSize: 35.0,
+                ),
+                rightTitles:
+                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              ),
+              maxY: 1000,
+              minY: 0,
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     // TRY THIS: Try changing the color here to a specific color (to
+    //     // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+    //     // change color while the other colors stay the same.
+    //     backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+    //     // Here we take the value from the MyHomePage object that was created by
+    //     // the App.build method, and use it to set our appbar title.
+    //     title: Text(widget.title),
+    //   ),
+    //   body: Center(
+    //     // Center is a layout widget. It takes a single child and positions it
+    //     // in the middle of the parent.
+    //     child: Column(
+    //       // Column is also a layout widget. It takes a list of children and
+    //       // arranges them vertically. By default, it sizes itself to fit its
+    //       // children horizontally, and tries to be as tall as its parent.
+    //       //
+    //       // Column has various properties to control how it sizes itself and
+    //       // how it positions its children. Here we use mainAxisAlignment to
+    //       // center the children vertically; the main axis here is the vertical
+    //       // axis because Columns are vertical (the cross axis would be
+    //       // horizontal).
+    //       //
+    //       // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+    //       // action in the IDE, or press "p" in the console), to see the
+    //       // wireframe for each widget.
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: <Widget>[
+    //         const Text(
+    //           'You have pushed the button this many times:',
+    //         ),
+    //         Text(
+    //           '$_counter',
+    //           style: Theme.of(context).textTheme.headlineMedium,
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    //   floatingActionButton: FloatingActionButton(
+    //     onPressed: _incrementCounter,
+    //     tooltip: 'Increment',
+    //     child: const Icon(Icons.add),
+    //   ), // This trailing comma makes auto-formatting nicer for build methods.
+    // );
   }
 }
